@@ -29,6 +29,16 @@ body {
   overflow-x: hidden;
 }
 
+/* Hide native cursor and restore none on interactive elements only for pointer devices */
+@media (pointer: fine) {
+  body {
+    cursor: none;
+  }
+  a, button, [data-cursor-hover] {
+    cursor: none;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -50,6 +60,19 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glassmorphism — stronger variant */
+.glass-strong {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* Scroll-reveal zoom helper */
+.scroll-zoom-in {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease;
 }
 
 /* Glow effects */
@@ -339,4 +362,21 @@ section {
 .orbit-container-reverse {
   transform-style: preserve-3d;
   animation: orbit-spin-reverse 9s linear infinite;
+}
+
+/* Ingredient card — collapse 2-col grid on mobile */
+@media (max-width: 700px) {
+  .ingredient-card-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .ingredient-card-grid > div {
+    order: unset !important;
+  }
+}
+
+/* Footer brand column — wider on larger screens */
+@media (min-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr !important;
+  }
 }

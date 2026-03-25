@@ -139,9 +139,9 @@ export default function Footer() {
         </div>
 
         {/* Main footer grid */}
-        <div style={{
+        <div className="footer-grid" style={{
           display: 'grid',
-          gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
           gap: '3rem',
           marginBottom: '4rem',
         }}>

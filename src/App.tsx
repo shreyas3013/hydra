@@ -7,7 +7,11 @@ import Hero from './components/Hero'
 import Features from './components/Features'
 import Products from './components/Products'
 import About from './components/About'
+import Testimonials from './components/Testimonials'
+import Ingredients from './components/Ingredients'
+import CTA from './components/CTA'
 import Footer from './components/Footer'
+import CustomCursor from './components/CustomCursor'
 import './App.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -91,6 +95,7 @@ function App() {
 
   return (
     <>
+      <CustomCursor />
       <AnimatePresence>
         {loading && <PageLoader key="loader" />}
       </AnimatePresence>
@@ -107,7 +112,10 @@ function App() {
           <Hero />
           <Features />
           <Products />
+          <Ingredients />
+          <Testimonials />
           <About />
+          <CTA />
         </main>
         <Footer />
       </motion.div>
