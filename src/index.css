@@ -37,7 +37,7 @@ body {
   background: #0a0a0a;
 }
 ::-webkit-scrollbar-thumb {
-  background: #00f5ff;
+  background: linear-gradient(180deg, #00f5ff, #7b2fff);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -105,12 +105,94 @@ body {
   100% { transform: translateY(100vh); }
 }
 
+@keyframes aurora {
+  0%, 100% {
+    transform: scale(1) rotate(0deg) translate(0%, 0%);
+    opacity: 0.35;
+  }
+  25% {
+    transform: scale(1.15) rotate(90deg) translate(5%, 5%);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(0.95) rotate(180deg) translate(-5%, 3%);
+    opacity: 0.3;
+  }
+  75% {
+    transform: scale(1.1) rotate(270deg) translate(3%, -5%);
+    opacity: 0.45;
+  }
+}
+
+@keyframes aurora2 {
+  0%, 100% {
+    transform: scale(1.1) rotate(0deg) translate(-3%, 2%);
+    opacity: 0.25;
+  }
+  33% {
+    transform: scale(0.9) rotate(120deg) translate(5%, -5%);
+    opacity: 0.4;
+  }
+  66% {
+    transform: scale(1.2) rotate(240deg) translate(-2%, 4%);
+    opacity: 0.2;
+  }
+}
+
+@keyframes loader-bar {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@keyframes loader-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.4; }
+  94% { opacity: 1; }
+  96% { opacity: 0.6; }
+  97% { opacity: 1; }
+}
+
+@keyframes orbit-spin {
+  from { transform: rotateZ(0deg) rotateX(70deg); }
+  to { transform: rotateZ(360deg) rotateX(70deg); }
+}
+
+@keyframes orbit-spin-reverse {
+  from { transform: rotateZ(360deg) rotateX(60deg); }
+  to { transform: rotateZ(0deg) rotateX(60deg); }
+}
+
+@keyframes glitch-shift {
+  0%, 90%, 100% { clip-path: none; transform: none; }
+  92% { clip-path: inset(20% 0 60% 0); transform: translateX(-4px); }
+  94% { clip-path: inset(60% 0 20% 0); transform: translateX(4px); }
+  96% { clip-path: inset(40% 0 40% 0); transform: translateX(-2px); }
+}
+
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+.animate-aurora {
+  animation: aurora 15s ease-in-out infinite;
+}
+
+.animate-aurora2 {
+  animation: aurora2 18s ease-in-out infinite;
+}
+
+.animate-flicker {
+  animation: flicker 8s ease-in-out infinite;
 }
 
 /* Section spacing */
@@ -125,4 +207,136 @@ section {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+/* Mobile responsive nav */
+.hamburger-btn {
+  display: none !important;
+}
+.desktop-nav {
+  display: flex !important;
+}
+
+@media (max-width: 768px) {
+  .hamburger-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .desktop-nav {
+    display: none !important;
+  }
+}
+
+/* 3D card flip icon */
+.geo-icon-wrap {
+  perspective: 300px;
+}
+
+.geo-card {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+/* Noise overlay */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-repeat: repeat;
+}
+
+/* Page loader */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.loader-logo {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 3rem;
+  background: linear-gradient(135deg, #00f5ff, #7b2fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: loader-pulse 1.5s ease-in-out infinite;
+}
+
+.loader-track {
+  width: 220px;
+  height: 2px;
+  background: rgba(0, 245, 255, 0.1);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.loader-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00f5ff, #7b2fff, #39ff14);
+  border-radius: 1px;
+  animation: loader-bar 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.loader-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  color: rgba(0, 245, 255, 0.5);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+/* Product mini card hover */
+.product-mini-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.product-mini-card:hover {
+  transform: translateY(-6px);
+}
+
+/* Feature card 3D tilt */
+.feature-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+}
+
+/* Stat counter animation */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.stat-animate {
+  animation: countUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Orbit ring for DrinkCan */
+.orbit-container {
+  transform-style: preserve-3d;
+  animation: orbit-spin 6s linear infinite;
+}
+.orbit-container-reverse {
+  transform-style: preserve-3d;
+  animation: orbit-spin-reverse 9s linear infinite;
 }

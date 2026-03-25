@@ -12,7 +12,7 @@ export default function Hero() {
   const ctaRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const tl = gsap.timeline({ delay: 0.5 })
+    const tl = gsap.timeline({ delay: 2.4 }) // after loader
     if (titleRef.current) {
       tl.from(titleRef.current.children, {
         opacity: 0,
@@ -56,19 +56,75 @@ export default function Hero() {
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
-        background: 'radial-gradient(ellipse at 50% 50%, #0d1a1a 0%, #0a0a0a 70%)',
+        background: 'radial-gradient(ellipse at 40% 60%, #0d1a1a 0%, #0a0a0a 65%)',
       }}
     >
+      {/* Aurora layer 1 */}
+      <div
+        className="animate-aurora"
+        style={{
+          position: 'absolute',
+          top: '-20%',
+          left: '-10%',
+          width: '70%',
+          height: '70%',
+          background: 'radial-gradient(ellipse, rgba(0,245,255,0.12) 0%, rgba(0,245,255,0.04) 40%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(40px)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+      {/* Aurora layer 2 */}
+      <div
+        className="animate-aurora2"
+        style={{
+          position: 'absolute',
+          bottom: '-20%',
+          right: '-5%',
+          width: '60%',
+          height: '60%',
+          background: 'radial-gradient(ellipse, rgba(123,47,255,0.15) 0%, rgba(123,47,255,0.05) 40%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(50px)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+      {/* Aurora layer 3 */}
+      <motion.div
+        animate={{
+          opacity: [0.2, 0.4, 0.2],
+          x: [0, 30, 0],
+          y: [0, -20, 0],
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        style={{
+          position: 'absolute',
+          top: '30%',
+          right: '20%',
+          width: '40%',
+          height: '40%',
+          background: 'radial-gradient(ellipse, rgba(57,255,20,0.06) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
       {/* Background grid */}
       <div style={{
         position: 'absolute',
         inset: 0,
         backgroundImage: `
-          linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px)
+          linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px)
         `,
         backgroundSize: '60px 60px',
         zIndex: 0,
+        maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
+        WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
       }} />
 
       {/* Scan line effect */}
@@ -79,22 +135,43 @@ export default function Hero() {
         right: 0,
         height: '2px',
         background: 'linear-gradient(90deg, transparent, #00f5ff, transparent)',
-        opacity: 0.5,
-        animation: 'scan-line 4s linear infinite',
+        opacity: 0.6,
+        animation: 'scan-line 5s linear infinite',
         zIndex: 1,
       }} />
 
+      {/* Horizontal accent lines */}
+      {[15, 45, 75].map((pct) => (
+        <motion.div
+          key={pct}
+          initial={{ scaleX: 0, opacity: 0 }}
+          animate={{ scaleX: 1, opacity: 0.15 }}
+          transition={{ delay: 2.5 + pct / 100, duration: 1.5, ease: 'easeOut' }}
+          style={{
+            position: 'absolute',
+            top: `${pct}%`,
+            left: 0,
+            right: 0,
+            height: '1px',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(0,245,255,0.4) 30%, rgba(0,245,255,0.4) 70%, transparent 100%)',
+            zIndex: 1,
+            transformOrigin: 'left',
+          }}
+        />
+      ))}
+
       {/* 3D Canvas */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+      <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
         <Canvas
           camera={{ position: [0, 0, 5], fov: 45 }}
           gl={{ antialias: true, alpha: true }}
           style={{ background: 'transparent' }}
         >
           <ambientLight intensity={0.3} />
-          <pointLight position={[5, 5, 5]} intensity={2} color="#00f5ff" />
-          <pointLight position={[-5, -5, 5]} intensity={1} color="#7b2fff" />
+          <pointLight position={[5, 5, 5]} intensity={2.5} color="#00f5ff" />
+          <pointLight position={[-5, -5, 5]} intensity={1.5} color="#7b2fff" />
           <pointLight position={[0, 3, 3]} intensity={1.5} color="#ffffff" />
+          <pointLight position={[2, -2, 4]} intensity={1} color="#39ff14" />
           <Suspense fallback={null}>
             <DrinkCan
               color="#001a1a"
@@ -103,8 +180,8 @@ export default function Hero() {
               scale={1.4}
               autoRotate
             />
-            <ParticleField count={300} color="#00f5ff" />
-            <Sparkles count={50} scale={10} size={2} speed={0.3} color="#00f5ff" />
+            <ParticleField count={350} color="#00f5ff" />
+            <Sparkles count={60} scale={12} size={2} speed={0.4} color="#00f5ff" />
             <Environment preset="night" />
           </Suspense>
           <OrbitControls enableZoom={false} enablePan={false} autoRotate={false} />
@@ -126,16 +203,17 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
+            transition={{ delay: 2.5, duration: 0.6 }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
-              background: 'rgba(0,245,255,0.1)',
-              border: '1px solid rgba(0,245,255,0.3)',
+              background: 'rgba(0,245,255,0.08)',
+              border: '1px solid rgba(0,245,255,0.25)',
               borderRadius: '50px',
               padding: '0.4rem 1rem',
               marginBottom: '2rem',
+              backdropFilter: 'blur(10px)',
             }}
           >
             <span style={{
@@ -159,10 +237,11 @@ export default function Hero() {
           </motion.div>
 
           {/* Main Title */}
-          <div ref={titleRef} style={{ display: 'flex', gap: '0.1em', marginBottom: '0.5rem', perspective: '1000px' }}>
+          <div ref={titleRef} style={{ display: 'flex', gap: '0.08em', marginBottom: '0.5rem', perspective: '1000px' }}>
             {letters.map((letter, i) => (
               <span
                 key={i}
+                className="animate-flicker"
                 style={{
                   fontFamily: 'Orbitron, monospace',
                   fontWeight: 900,
@@ -176,6 +255,7 @@ export default function Hero() {
                   backgroundClip: 'text',
                   display: 'inline-block',
                   filter: 'drop-shadow(0 0 30px rgba(0,245,255,0.5))',
+                  animationDelay: `${i * 0.25}s`,
                 }}
               >
                 {letter}
@@ -214,7 +294,10 @@ export default function Hero() {
           {/* CTAs */}
           <div ref={ctaRef} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <motion.button
-              whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(0,245,255,0.6)' }}
+              whileHover={{
+                scale: 1.06,
+                boxShadow: '0 0 40px rgba(0,245,255,0.5), 0 0 80px rgba(0,245,255,0.2)',
+              }}
               whileTap={{ scale: 0.95 }}
               onClick={scrollToFeatures}
               style={{
@@ -229,16 +312,23 @@ export default function Hero() {
                 fontWeight: 700,
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
+                boxShadow: '0 0 20px rgba(0,245,255,0.3)',
+                transition: 'box-shadow 0.3s',
               }}
             >
               Explore Now
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.05, background: 'rgba(0,245,255,0.1)', borderColor: '#00f5ff' }}
+              whileHover={{
+                scale: 1.06,
+                background: 'rgba(0,245,255,0.1)',
+                borderColor: '#00f5ff',
+                boxShadow: '0 0 20px rgba(0,245,255,0.2)',
+              }}
               whileTap={{ scale: 0.95 }}
               style={{
                 background: 'transparent',
-                border: '1px solid rgba(0,245,255,0.4)',
+                border: '1px solid rgba(0,245,255,0.35)',
                 color: '#00f5ff',
                 cursor: 'pointer',
                 padding: '1rem 2.5rem',
@@ -248,6 +338,7 @@ export default function Hero() {
                 fontWeight: 600,
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
+                transition: 'all 0.3s',
               }}
             >
               Watch Film
@@ -258,27 +349,28 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.8 }}
+            transition={{ delay: 3.2, duration: 0.8 }}
             style={{
               display: 'flex',
               gap: '2.5rem',
               marginTop: '4rem',
               paddingTop: '2rem',
               borderTop: '1px solid rgba(255,255,255,0.08)',
+              flexWrap: 'wrap',
             }}
           >
             {[
-              { value: '200mg', label: 'Caffeine' },
-              { value: '0g', label: 'Sugar' },
-              { value: '8', label: 'Flavors' },
+              { value: '200mg', label: 'Caffeine', color: '#00f5ff' },
+              { value: '0g', label: 'Sugar', color: '#39ff14' },
+              { value: '8', label: 'Flavors', color: '#7b2fff' },
             ].map((stat) => (
               <div key={stat.label}>
                 <p style={{
                   fontFamily: 'Orbitron, monospace',
                   fontWeight: 800,
                   fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-                  color: '#00f5ff',
-                  textShadow: '0 0 20px rgba(0,245,255,0.5)',
+                  color: stat.color,
+                  textShadow: `0 0 20px ${stat.color}66`,
                 }}>{stat.value}</p>
                 <p style={{
                   fontFamily: 'Inter, sans-serif',
@@ -298,7 +390,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
+        transition={{ delay: 3.5, duration: 1 }}
         style={{
           position: 'absolute',
           bottom: '2rem',
@@ -316,7 +408,7 @@ export default function Hero() {
         <span style={{
           fontFamily: 'Orbitron, monospace',
           fontSize: '0.65rem',
-          color: 'rgba(255,255,255,0.4)',
+          color: 'rgba(255,255,255,0.35)',
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
         }}>Scroll</span>

@@ -1,44 +1,97 @@
-import { useRef, useEffect, Suspense } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useRef, useEffect } from 'react'
 import { motion, useInView } from 'framer-motion'
-import * as THREE from 'three'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-function FloatingOctahedron({ color, position, speed = 1 }: { color: string; position: [number, number, number]; speed?: number }) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  useFrame((state) => {
-    if (!meshRef.current) return
-    const t = state.clock.elapsedTime
-    meshRef.current.rotation.x = t * speed * 0.5
-    meshRef.current.rotation.y = t * speed * 0.3
-    meshRef.current.position.y = position[1] + Math.sin(t * speed) * 0.3
-  })
-  return (
-    <mesh ref={meshRef} position={position}>
-      <octahedronGeometry args={[0.6, 0]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.4}
-        metalness={0.8}
-        roughness={0.1}
-      />
-    </mesh>
-  )
-}
+// CSS 3D flip icon — no WebGL needed, very performant
+function FlipIcon({
+  color,
+  icon,
+  stat,
+  variant,
+}: {
+  color: string
+  icon: string
+  stat: string
+  variant: number
+}) {
+  const clipPaths = [
+    'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',            // diamond
+    'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)', // hexagon
+    'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)', // pentagon
+    'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)', // star
+    'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+    'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)',             // trapezoid
+  ]
+  const clip = clipPaths[variant % clipPaths.length]
 
-function FeatureCanvas({ color }: { color: string }) {
   return (
-    <Canvas camera={{ position: [0, 0, 4], fov: 45 }} gl={{ antialias: true, alpha: true }}>
-      <ambientLight intensity={0.4} />
-      <pointLight position={[3, 3, 3]} intensity={2} color={color} />
-      <Suspense fallback={null}>
-        <FloatingOctahedron color={color} position={[0, 0, 0]} speed={0.8} />
-      </Suspense>
-    </Canvas>
+    <div
+      className="geo-icon-wrap"
+      style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <div style={{ position: 'relative', width: 80, height: 80 }}>
+        {/* Outer slow rotation */}
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 12 + variant * 2, repeat: Infinity, ease: 'linear' }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            clipPath: clip,
+            background: `conic-gradient(from 0deg, ${color}aa, ${color}22, ${color}aa)`,
+            filter: `drop-shadow(0 0 10px ${color}88)`,
+          }}
+        />
+        {/* Inner counter rotation */}
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 8 + variant, repeat: Infinity, ease: 'linear' }}
+          style={{
+            position: 'absolute',
+            inset: 14,
+            clipPath: clip,
+            background: `linear-gradient(135deg, ${color}55 0%, transparent 70%)`,
+          }}
+        />
+        {/* Pulsing glow center */}
+        <motion.div
+          animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 2 + variant * 0.3, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.8rem',
+            filter: `drop-shadow(0 0 6px ${color})`,
+          }}
+        >
+          {icon}
+        </motion.div>
+        {/* Stat overlay (appears on hover via parent) */}
+        <div style={{
+          position: 'absolute',
+          bottom: -8,
+          right: -8,
+          background: `${color}22`,
+          border: `1px solid ${color}55`,
+          borderRadius: '8px',
+          padding: '2px 6px',
+          fontFamily: 'Orbitron, monospace',
+          fontSize: '0.6rem',
+          color: color,
+          fontWeight: 700,
+          letterSpacing: '0.05em',
+          backdropFilter: 'blur(4px)',
+        }}>
+          {stat}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -97,7 +150,33 @@ type Feature = typeof features[0]
 
 function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
   const cardRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(cardRef, { once: true, margin: '-100px' })
+  const isInView = useInView(cardRef, { once: true, margin: '-80px' })
+  const rafRef = useRef<number | null>(null)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    const clientX = e.clientX
+    const clientY = e.clientY
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(() => {
+      const rect = el.getBoundingClientRect()
+      const x = clientX - rect.left
+      const y = clientY - rect.top
+      const cx = rect.width / 2
+      const cy = rect.height / 2
+      const rotY = ((x - cx) / cx) * 8
+      const rotX = -((y - cy) / cy) * 8
+      el.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-6px)`
+    })
+  }
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    const el = e.currentTarget
+    el.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0px)'
+    el.style.borderColor = `${feature.color}22`
+    el.style.boxShadow = 'none'
+  }
 
   return (
     <motion.div
@@ -105,17 +184,13 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
       initial={{ opacity: 0, y: 60 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.1, ease: 'easeOut' }}
-      whileHover={{ y: -8, transition: { duration: 0.3 } }}
+      onMouseMove={handleMouseMove}
       onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLDivElement
-        el.style.borderColor = `${feature.color}66`
-        el.style.boxShadow = `0 0 30px ${feature.color}22`
+        const el = e.currentTarget
+        el.style.borderColor = `${feature.color}55`
+        el.style.boxShadow = `0 0 40px ${feature.color}18, 0 20px 60px rgba(0,0,0,0.4)`
       }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLDivElement
-        el.style.borderColor = `${feature.color}22`
-        el.style.boxShadow = 'none'
-      }}
+      onMouseLeave={handleMouseLeave}
       style={{
         background: 'rgba(255,255,255,0.03)',
         border: `1px solid ${feature.color}22`,
@@ -124,7 +199,8 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
         cursor: 'default',
         position: 'relative',
         overflow: 'hidden',
-        transition: 'border-color 0.3s, box-shadow 0.3s',
+        transition: 'transform 0.2s ease, border-color 0.3s, box-shadow 0.3s',
+        transformStyle: 'preserve-3d',
       }}
     >
       {/* Gradient top border */}
@@ -137,12 +213,24 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
         background: `linear-gradient(90deg, transparent, ${feature.color}, transparent)`,
       }} />
 
-      {/* 3D Canvas */}
-      <div style={{ height: '120px', marginBottom: '1.5rem' }}>
-        <FeatureCanvas color={feature.color} />
-      </div>
+      {/* Background glow on hover (always present, fades in via opacity) */}
+      <div style={{
+        position: 'absolute',
+        top: '-40%',
+        left: '-20%',
+        width: '140%',
+        height: '140%',
+        background: `radial-gradient(ellipse at 50% 0%, ${feature.color}08 0%, transparent 60%)`,
+        pointerEvents: 'none',
+      }} />
 
-      <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>{feature.icon}</div>
+      {/* CSS 3D Icon */}
+      <FlipIcon
+        color={feature.color}
+        icon={feature.icon}
+        stat={feature.stat}
+        variant={index}
+      />
 
       <h3 style={{
         fontFamily: 'Orbitron, monospace',
@@ -151,6 +239,7 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
         color: '#ffffff',
         marginBottom: '0.75rem',
         letterSpacing: '0.05em',
+        marginTop: '0.5rem',
       }}>{feature.title}</h3>
 
       <p style={{
@@ -210,15 +299,28 @@ export default function Features() {
         position: 'relative',
       }}
     >
+      {/* Background glow orbs */}
       <div style={{
         position: 'absolute',
-        top: '10%',
+        top: '5%',
         left: '-10%',
         width: '500px',
         height: '500px',
         background: 'radial-gradient(circle, rgba(0,245,255,0.05) 0%, transparent 70%)',
         borderRadius: '50%',
         pointerEvents: 'none',
+        filter: 'blur(20px)',
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '10%',
+        right: '-5%',
+        width: '400px',
+        height: '400px',
+        background: 'radial-gradient(circle, rgba(123,47,255,0.06) 0%, transparent 70%)',
+        borderRadius: '50%',
+        pointerEvents: 'none',
+        filter: 'blur(20px)',
       }} />
 
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
@@ -279,7 +381,7 @@ export default function Features() {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
           gap: '1.5rem',
         }}>
           {features.map((feature, index) => (
