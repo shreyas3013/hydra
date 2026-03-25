@@ -35,10 +35,11 @@ export default function Navbar() {
         left: 0,
         right: 0,
         zIndex: 100,
-        transition: 'all 0.3s ease',
-        background: scrolled ? 'rgba(10,10,10,0.85)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(20px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(0,245,255,0.1)' : 'none',
+        transition: 'background 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease',
+        background: scrolled ? 'rgba(10,10,10,0.9)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(24px)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(24px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(0,245,255,0.12)' : 'none',
         padding: '0 2rem',
       }}
     >
@@ -56,19 +57,23 @@ export default function Navbar() {
           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           onClick={() => scrollTo('#hero')}
         >
-          <div style={{
-            width: '36px',
-            height: '36px',
-            background: 'linear-gradient(135deg, #00f5ff, #7b2fff)',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontFamily: 'Orbitron, monospace',
-            fontWeight: 900,
-            fontSize: '1rem',
-            color: '#0a0a0a',
-          }}>H</div>
+          <motion.div
+            animate={{ boxShadow: ['0 0 10px rgba(0,245,255,0.4)', '0 0 20px rgba(0,245,255,0.7)', '0 0 10px rgba(0,245,255,0.4)'] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              width: '36px',
+              height: '36px',
+              background: 'linear-gradient(135deg, #00f5ff, #7b2fff)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: 'Orbitron, monospace',
+              fontWeight: 900,
+              fontSize: '1rem',
+              color: '#0a0a0a',
+            }}
+          >H</motion.div>
           <span style={{
             fontFamily: 'Orbitron, monospace',
             fontWeight: 800,
@@ -81,12 +86,12 @@ export default function Navbar() {
         </motion.div>
 
         {/* Desktop Nav Links */}
-        <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
+        <div className="desktop-nav" style={{ gap: '2.5rem', alignItems: 'center' }}>
           {navLinks.map((link) => (
             <motion.button
               key={link.label}
               onClick={() => scrollTo(link.href)}
-              whileHover={{ color: '#00f5ff' }}
+              whileHover={{ color: '#00f5ff', y: -1 }}
               style={{
                 background: 'none',
                 border: 'none',
@@ -98,13 +103,14 @@ export default function Navbar() {
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
                 transition: 'color 0.2s',
+                position: 'relative',
               }}
             >
               {link.label}
             </motion.button>
           ))}
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(0,245,255,0.4)' }}
             whileTap={{ scale: 0.95 }}
             onClick={() => scrollTo('#products')}
             style={{
@@ -127,17 +133,21 @@ export default function Navbar() {
 
         {/* Hamburger for mobile */}
         <button
+          className="hamburger-btn"
           onClick={() => setMenuOpen(!menuOpen)}
           style={{
-            display: 'none',
             background: 'none',
-            border: 'none',
+            border: '1px solid rgba(0,245,255,0.3)',
             color: '#00f5ff',
             cursor: 'pointer',
-            fontSize: '1.5rem',
+            fontSize: '1.2rem',
+            padding: '0.4rem 0.6rem',
+            borderRadius: '8px',
+            transition: 'all 0.2s',
           }}
+          aria-label="Toggle menu"
         >
-          ☰
+          {menuOpen ? '✕' : '☰'}
         </button>
       </div>
 
@@ -149,33 +159,65 @@ export default function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             style={{
-              background: 'rgba(10,10,10,0.95)',
-              backdropFilter: 'blur(20px)',
+              background: 'rgba(10,10,10,0.97)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
               borderTop: '1px solid rgba(0,245,255,0.1)',
-              padding: '1rem 2rem',
+              borderBottom: '1px solid rgba(0,245,255,0.1)',
+              padding: '1.5rem 2rem',
+              overflow: 'hidden',
             }}
           >
-            {navLinks.map((link) => (
-              <button
+            {navLinks.map((link, i) => (
+              <motion.button
                 key={link.label}
                 onClick={() => scrollTo(link.href)}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.07 }}
+                whileTap={{ scale: 0.97 }}
                 style={{
                   display: 'block',
                   width: '100%',
                   background: 'none',
                   border: 'none',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
                   color: 'rgba(255,255,255,0.8)',
                   cursor: 'pointer',
-                  padding: '0.75rem 0',
+                  padding: '1rem 0',
                   fontFamily: 'Orbitron, monospace',
                   fontSize: '0.875rem',
                   textAlign: 'left',
                   letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
                 }}
               >
                 {link.label}
-              </button>
+              </motion.button>
             ))}
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              onClick={() => scrollTo('#products')}
+              style={{
+                marginTop: '1rem',
+                width: '100%',
+                background: 'linear-gradient(135deg, #00f5ff, #7b2fff)',
+                border: 'none',
+                color: '#0a0a0a',
+                cursor: 'pointer',
+                padding: '0.875rem',
+                borderRadius: '50px',
+                fontSize: '0.85rem',
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Shop Now
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
