@@ -7,20 +7,24 @@ interface ParticleFieldProps {
   color?: string
 }
 
+// Generate particle data outside the component so it's stable and rule-compliant
+function generateParticles(count: number) {
+  const positions = new Float32Array(count * 3)
+  const sizes = new Float32Array(count)
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 20
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 20
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 20
+    sizes[i] = Math.random() * 3 + 0.5
+  }
+  return { positions, sizes }
+}
+
 export default function ParticleField({ count = 200, color = '#00f5ff' }: ParticleFieldProps) {
   const meshRef = useRef<THREE.Points>(null)
 
-  const [positions, sizes] = useMemo(() => {
-    const positions = new Float32Array(count * 3)
-    const sizes = new Float32Array(count)
-    for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 20
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 20
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 20
-      sizes[i] = Math.random() * 3 + 0.5
-    }
-    return [positions, sizes]
-  }, [count])
+  // Memoize by count — data is stable for a given count value
+  const { positions, sizes } = useMemo(() => generateParticles(count), [count])
 
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry()

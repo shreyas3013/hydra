@@ -15,6 +15,8 @@ export default function Navbar() {
     { label: 'Home', href: '#hero' },
     { label: 'Features', href: '#features' },
     { label: 'Products', href: '#products' },
+    { label: 'Formula', href: '#ingredients' },
+    { label: 'Reviews', href: '#testimonials' },
     { label: 'Our Story', href: '#about' },
   ]
 
